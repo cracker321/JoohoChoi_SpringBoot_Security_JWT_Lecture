@@ -3,6 +3,7 @@ package com.cos.security1.controller;
 import com.cos.security1.model.User;
 import com.cos.security1.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class IndexController {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     //---------------------------------------------------------------------------------------
 
@@ -116,7 +118,7 @@ public class IndexController {
     //< 신규 회원가입 >
 
     @PostMapping("/join")
-    public @ResponseBody String join(User user){
+    public String join(User user){
 
         //순서 1) '뷰 joinForm.html 내부의 폼 form 객체'를 통해 새로운 신규 '사용자 User 객체'가
         //       본인의 노트북 화면에 떠 있는 '신규회원가입에 필요한 본인 정보 (아이디, 비밀번호, 이메일)'을 입력한 후,
@@ -135,11 +137,24 @@ public class IndexController {
         user.setRole("ROLE_USER");
 
 
-        userRepository.save(user);
-        //회원가입 자체는 잘 되지만, 비밀번호가 '숫자 1234' 이렇게 직접 노트북 화면에 보여지게 되어, 시큐리티로 로그인 불가함.
-        //이유는, 패스워드가 암호화가 안 되었기 때문에.
+        //userRepository.save(user);
+        //- 만약, 이 단계에서 db로 저장시키면, 회원가입 자체는 잘 되지만,
+        //  비밀번호가 '숫자 1234' 이렇게 직접 노트북 화면에 보여지게 되어, 시큐리티로 로그인 불가함.
+        //  이유는, 패스워드가 암호화가 안 되었기 때문에.
 
-        return "join";
+
+        String rawPassword = user.getPassword();
+        String encPassword = bCryptPasswordEncoder.encode(rawPassword);
+        user.setPassword(encPassword);
+
+        //회원가입 완료.
+        //비밀번호 '숫자 1234'로는 이제 스프링 시큐리티를 이용하면 로그인할 수 없음.
+        //왜냐하면, '날 것 그대로의 숫자 1234'라는 패스워드는 암호화(인코딩)가 안 되어있기 때문이다!
+        userRepository.save(user);
+
+
+        //회원가입 로직을 완료한 후, 이제 '뷰 loginForm'으로 리다이렉션하여 거기로 보내줌.
+        return "redirect:/loginForm";
     }
 
 
