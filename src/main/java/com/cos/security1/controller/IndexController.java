@@ -113,20 +113,21 @@ public class IndexController {
     //[ '스프링부트 시큐리티 3강 - 시큐리티 회원가입'강 14:00~ ]
 
 
-    //< 회원가입 >
+    //< 신규 회원가입 >
 
     @PostMapping("/join")
     public @ResponseBody String join(User user){
 
-        //순서 1) '뷰 joinForm.html 내부의 폼 form 객체'를 통해 '사용자 User 객체'가
-        //       화면에 떠 있는 '신규회원가입에 필요한 본인 정보 (아이디, 비밀번호, 이메일)'을 입력하고
-        //       '제출, 확인 등의 버튼'을 누르면,
-        //순서 2) '뷰 joinForm.html 내부의 action 태그 정보(action="/join")'에 '/join'으로 되어있으니,
-        //       사용자가 입력한 데이터(아이디, 비밀번호, 이메일)가 URL 주소 'localhost:8080/join'으로 넘어가게 되고,
-        //순서 3) 그것이 유기적으로 연결되어 서버단인 여기 @PostMapping("/join")으로 넘어와서,
-        //       '사용자 User 객체'가 폼 form 객체에 입력한 정보(아이디, 비밀번호, 이메일) 이외에 더 존재해야 하는
+        //순서 1) '뷰 joinForm.html 내부의 폼 form 객체'를 통해 새로운 신규 '사용자 User 객체'가
+        //       본인의 노트북 화면에 떠 있는 '신규회원가입에 필요한 본인 정보 (아이디, 비밀번호, 이메일)'을 입력한 후,
+        //       그 노트북 화면에서 '제출, 확인 등의 버튼'을 누르면,
+        //순서 2) '뷰 joinForm.html 내부의 action 태그 정보(action="/join")'에 '/join'으로 되어있는 로직에 따라,
+        //       그 신규 사용자가 입력한 데이터(아이디, 비밀번호, 이메일)가 URL 주소 'localhost:8080/join'으로 넘어가게 되고,
+        //순서 3) 유기적으로 연결되어 있는 서버단인 여기 @PostMapping("/join")으로 그 데이터가 넘어와서,
+        //       신규 '사용자 User 객체'가 폼 form 객체에 입력한 정보(아이디, 비밀번호, 이메일) 이외에 더 존재해야 하는
         //       '사용자 User 객체의 필드(속성)'인 '필드 Role'의 속성값을 바로 여기 '컨트롤러 메소드 join' 에서
-        //       추가해주고,
+        //       'user.setRole("ROLE_USER")'라고 작성해주어 추가해주고,
+        //       cf) 'createDate'는 자동으로 입력되기 떄문에, 따로 여기서 setCreateDate 이렇게 할 필요 없음.
         //순서 4) '레펏 UserRepository'를 통해 여기서 그 '사용자 User 객체 정보들'을 DB에 저장시키는 것이 순서가 된다!
 
 
@@ -134,8 +135,9 @@ public class IndexController {
         user.setRole("ROLE_USER");
 
 
-
         userRepository.save(user);
+        //회원가입 자체는 잘 되지만, 비밀번호가 '숫자 1234' 이렇게 직접 노트북 화면에 보여지게 되어, 시큐리티로 로그인 불가함.
+        //이유는, 패스워드가 암호화가 안 되었기 때문에.
 
         return "join";
     }
