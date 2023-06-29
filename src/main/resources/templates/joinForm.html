@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입 페이지</title>
+</head>
+<body>
+
+<h1>회원가입 페이지</h1>
+<hr/>
+<!--
+    < form 태그 >
+
+    - 'form 태그'는, 화면을 바라보는 사용자가 '신규 회원가입을 위한 본인 정보 입력'과 같이,
+      사용자가 데이터를 입력할 수 있는 '폼(형식)'을 만들어 주는 태그.
+    - form 태그 안에 각종 html코드들을 넣어서, 그 구체적인 형식을 만들어주는 것임.
+    - 웹페이지에서 사용자로부터 데이터(사용자가 화면에서 회원가입할 때 입력하는 본인 정보)를 입력받을 수 있는 영역을 생성함.
+    - 사용자가 직접 입력한 데이터를 서버로 전송하여 데이터 처리를 가능하게 함.
+    - '<form>과 </form> 사이'에 작성함.
+    - form태그 안에는 입력 요소를 추가하며, 각 요소에는 name속성을 부여함.
+-->
+
+<!--
+    < action 태그 >: '/members/new'
+
+    - 여기의 form 데이터를 사용자가 화면에서 다 작성하고('신규 회원가입을 위한 본인 정보 입력'을 다 작성하고), submit 버튼 누르면,
+      사용자가 입력한 그 정보를 이제 처리할 서버 스크립트 파일의 경로를 지정함.
+    - '<form>태그'에 추가되어 데이터 처리를 위한 서버 스크립트 파일의 경로를 지정함.
+    - 사용자가 화면에서 아래 칸에 따라 신규 회원 정보 다 작성하고 submit 버튼 누르면, 이제 이 데이터가
+     바로 아래 action 태그의 URL 요청 링크인 '/members/new'로 화면이 넘어간다!
+-->
+
+<!--
+    < 'memberForm' >
+
+    '컨트롤러 MemberController에서 'new MemberForm 데이터'를 담고 있는 모델객체 변수명 memberForm'.
+    즉, 'MemberForm 객체'의 내부 필드(속성)들을 활용하는 것임.
+-->
+
+<!--
+    < 'method="post"' >
+
+    1.'컨트롤러 IndexController의 @GetMapping("/joinForm") public String createForm(Model model)'를 통해
+    '뷰 joinForm.html' 여기로 찾아와서 아래 코드를 통해 브라우저에 '아래 폼 태그 내부의 폼 데이터를 표시' 했다면,
+    이 코드를 쭉 다 실행해서 화면에 표시하고,
+    (컨트롤러의 해당 메소드의 'Get 요청(@GetMapping)'을 통해 아래 '뷰 joinForm.html' 내부의 코드가 화면에 띄워짐(=표시됨).
+    즉, 데이터를 서버로부터 받아오는(=GET) 것임.)
+    2.저~ 아래 'submit 제출' 버튼을 누르면, 아래 폼 태그 내부에 사용자가 입력한 내용들을 서버 사이드로 전송하는데,
+    이 경우, 사용자가 '입력'한 것을 전달하여 서버에 것이기에 'post 메소드'를 사용해야 함.
+    (여기서의 method="post"를 통해 아래에서 입력한 정보를 서버단으로 POST요청을 통해 전송시키는 것임.
+    즉, 데이터를 서버로 보내서 서버에 등록시키는(=POST) 것임.)
+-->
+
+<form action="/join" method="POST">
+    <input type="text" name="username" placeholder="Username을 입력하세요"/><br/>
+    <input type="passowrd" name="passowrd" placeholder="Password을 입력하세요"/><br/>
+    <input type="email" name="email" placeholder="Email을 입력하세요"/><br/>
+    <button>회원가입</button>
+</form>
+
+
+
+</body>
+</html>

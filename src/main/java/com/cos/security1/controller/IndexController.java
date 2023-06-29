@@ -1,13 +1,18 @@
 package com.cos.security1.controller;
 
+import com.cos.security1.model.User;
+import com.cos.security1.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+@RequiredArgsConstructor
 @Controller //'뷰'를 리턴
 public class IndexController {
 
-
+    private final UserRepository userRepository;
 
     //---------------------------------------------------------------------------------------
 
@@ -100,8 +105,37 @@ public class IndexController {
     //============================================================================================
 
 
-    @GetMapping("/join")
-    public @ResponseBody String join(){
+    //순서 1) '화면단'에서 '뷰 joinForm.html'에서 사용자(신규회원)가 신규회원가입 '폼 form'을 작성한 후,
+    //순서 2) '서버단'인 여기로 그 정보가 'action 태그'에 적힌 'action="/join"'을 통해
+    //        이 '컨트롤러 메소드 join'으로 넘어온다!
+
+
+    //[ '스프링부트 시큐리티 3강 - 시큐리티 회원가입'강 14:00~ ]
+
+
+    //< 회원가입 >
+
+    @PostMapping("/join")
+    public @ResponseBody String join(User user){
+
+        //순서 1) '뷰 joinForm.html 내부의 폼 form 객체'를 통해 '사용자 User 객체'가
+        //       화면에 떠 있는 '신규회원가입에 필요한 본인 정보 (아이디, 비밀번호, 이메일)'을 입력하고
+        //       '제출, 확인 등의 버튼'을 누르면,
+        //순서 2) '뷰 joinForm.html 내부의 action 태그 정보(action="/join")'에 '/join'으로 되어있으니,
+        //       사용자가 입력한 데이터(아이디, 비밀번호, 이메일)가 URL 주소 'localhost:8080/join'으로 넘어가게 되고,
+        //순서 3) 그것이 유기적으로 연결되어 서버단인 여기 @PostMapping("/join")으로 넘어와서,
+        //       '사용자 User 객체'가 폼 form 객체에 입력한 정보(아이디, 비밀번호, 이메일) 이외에 더 존재해야 하는
+        //       '사용자 User 객체의 필드(속성)'인 '필드 Role'의 속성값을 바로 여기 '컨트롤러 메소드 join' 에서
+        //       추가해주고,
+        //순서 4) '레펏 UserRepository'를 통해 여기서 그 '사용자 User 객체 정보들'을 DB에 저장시키는 것이 순서가 된다!
+
+
+        //DB에, '테이블 User의 컬럼 Role'의 '행(데이터) 값'으로 'ROLE_USER'가 입력되게 되는 것임.
+        user.setRole("ROLE_USER");
+
+
+
+        userRepository.save(user);
 
         return "join";
     }
