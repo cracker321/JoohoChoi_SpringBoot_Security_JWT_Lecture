@@ -5,6 +5,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
+
+//--------------------------------------------------------------------------------------------
+
+
+//============================================================================================
+
+
 @EnableWebSecurity //'스프링 시큐리티 필터'를 '스프링 시큐리티 필터 체인'에 등록시키는 어노테이션.
 //여기서 '스프링 시큐리티 필터'란 여기의 '클래스 SecurityConfig'를 말하는 것임.
 @Configuration //현재 클래스가, '구성 클래스'임을 나타내줌.
@@ -34,10 +41,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().permitAll()
 
                 //(5) 위 (1)~(3)의 URL주소로 '권한 없이 접근할 때', 그 권한 없이 접근한 사람에게
-                //    로그인 화면("/logiin")으로 이동시켜주는 코드.
+                //    로그인 화면("/loginForm")으로 이동시켜주는 코드.
                 .and()
                 .formLogin()
-                .loginPage("/login");
+                .loginPage("/loginForm");
 
     }
 

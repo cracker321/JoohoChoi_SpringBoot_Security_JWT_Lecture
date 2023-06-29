@@ -80,10 +80,20 @@ public class IndexController {
     //  스프링시큐리티 최초 로그인해야 하는 푸른색 창이 떴는데,
     //  이후, '클래스 SecurityConfig'를 작성한 후에는, 이제 그런 푸른색 창이 뜨지 않고,
     //  정상적으로 화면에 'loginForm'문자열을 보여줌.
-    @GetMapping("/login")
-    public String login(){
+    @GetMapping("/loginForm")
+    public String loginForm(){
 
         return "loginForm";
+    }
+
+
+    //============================================================================================
+
+
+    @GetMapping("/joinForm")
+    public String joinForm(){
+
+        return "joinForm";
     }
 
 
@@ -96,14 +106,6 @@ public class IndexController {
         return "join";
     }
 
-
-    //============================================================================================
-
-    @GetMapping("/joinProc")
-    public @ResponseBody String joinProc(){
-
-        return "회원가입 완료됨!";
-    }
 
     //============================================================================================
 
