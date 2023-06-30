@@ -21,7 +21,58 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
-    //--------------------------------------------------------------------------------------------
+    //============================================================================================
+
+
+    //[ '스프링부트 시큐리티 2강 - 시큐리티 설정'강 00:00~ ]
+
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception{
+
+        http.csrf().disable(); //csrf 설정을 비활성화함.
+        http.authorizeRequests()
+                //(1) URL주소 '/user/**'로 들어오는 입력은, '로그인 절차(=인증 절차)를 거치는 것이 필수'.
+                .antMatchers("/user/**").authenticated()
+
+                //(2) URL주소 '/manager/**'로 들어오는 입력은, 'ROLE_ADMIN'권한 또는 'ROLE_MANAGER' 권한이 있는
+                //    사람만 접근 가능하도록 설정함.
+                .antMatchers("/manager/**").access("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+
+                //(3) URL주소 '/manager/**'로 들어오는 입력은, 'ROLE_ADMIN'권한이 있는 사람만 접근 가능하도록 설정함.
+                .antMatchers("/admin/**").access("hasRole('ROLE_ADMIN')")
+
+                //(4) 위 (1)~(3)의 URL 주소가 아닌 다른 URL주소로 들어오는 입력은, 로그인 제한이나 권한 제한
+                //    필요 없이 그냥 자유롭게 해당 사이트에 접근 가능함. 권한 허용('permitAll')
+                .anyRequest().permitAll()
+
+                .and()
+
+                //(5)-1 사용자가 노트북 화면에서 스프링 시큐리티가 제공하는 '폼 form 기반 인증'을 사용할 수 있도록 설정해주는 메소드.
+                .formLogin()
+
+                //(5)-2 위 (1)~(3)의 URL주소로 '권한 없이 접근할 때', 그 권한 없이 접근한 사람에게
+                //      로그인 화면("/loginForm")으로 이동시켜주는 코드.
+                .loginPage("/loginForm")
+
+                //(5)-3 사용자가 노트북 화면에 자신의 실제 로그인 정보(자신의 아이디, 그 아이디의 비밀번호)를 입력할 수 있도록
+                //      해주는 '폼 form 형식'을 제공하는 메소드.
+                //      순서 1) 사용자가 자신의 실제 로그인 정보를 다 입력하고 '제출' 버튼을 노트북 화면에서 누르면,
+                //      순서 2) 사용자가 입력한 그 로그인 정보(=폼 데이터)를 URL주소 '/login'으로 POST 요청으로 전송됨(보내짐).
+                //      순서 3) 스프링 시큐리티의 내부 메커니즘이 이 URL주소 '/login'를 처리하고,
+                //             사용자 이름, 아이디, 비밀번호 등의 정보를 검증함.
+                //      순서 4) 사용자 인증이 성공하면, 사용자는 원래 접속(요청)하려던 페이지로 접속할 수 있게 되고,
+                //             사용자 인증이 실패하면, 사용자는 로그인 페이지로 다시 리다이렉트되고, 인증 실패 메시지가 표시될 수도 있음.
+                .loginProcessingUrl("/login")
+
+                //(5)-4 사용자 인증이 성공했다면(로그인이 성공했다면), 그 사용자가 최초에 원래 접속하려던 페이지의 URL이 아닌,
+                //      루트 경로인 '/'로 그 사용자를 보내줌(리다이렉트해줌)
+                .defaultSuccessUrl("/");
+
+    }
+
+    //============================================================================================
+
 
     /*
 
@@ -129,42 +180,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
 
-
     //============================================================================================
-
-
-    //[ '스프링부트 시큐리티 2강 - 시큐리티 설정'강 00:00~ ]
-
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception{
-
-        http.csrf().disable(); //csrf 설정을 비활성화함.
-        http.authorizeRequests()
-                //(1) URL주소 '/user/**'로 들어오는 입력은, '로그인 절차(=인증 절차)를 거치는 것이 필수'.
-                .antMatchers("/user/**").authenticated()
-
-                //(2) URL주소 '/manager/**'로 들어오는 입력은, 'ROLE_ADMIN'권한 또는 'ROLE_MANAGER' 권한이 있는
-                //    사람만 접근 가능하도록 설정함.
-                .antMatchers("/manager/**").access("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
-
-                //(3) URL주소 '/manager/**'로 들어오는 입력은, 'ROLE_ADMIN'권한이 있는 사람만 접근 가능하도록 설정함.
-                .antMatchers("/admin/**").access("hasRole('ROLE_ADMIN')")
-
-                //(4) 위 (1)~(3)의 URL 주소가 아닌 다른 URL주소로 들어오는 입력은, 로그인 제한이나 권한 제한
-                //    필요 없이 그냥 자유롭게 해당 사이트에 접근 가능함. 권한 허용('permitAll')
-                .anyRequest().permitAll()
-
-                //(5) 위 (1)~(3)의 URL주소로 '권한 없이 접근할 때', 그 권한 없이 접근한 사람에게
-                //    로그인 화면("/loginForm")으로 이동시켜주는 코드.
-                .and()
-                .formLogin()
-                .loginPage("/loginForm");
-
-    }
-
-    //============================================================================================
-
 
 
 }
