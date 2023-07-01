@@ -164,6 +164,21 @@ public class IndexController {
 
     //< @Secured(...) >
 
+    /*
+    - '클래스 SecurityConfig' 내부에 아래처럼 '글로벌로 URL 접근 제한 조건들 다 설정'했음에도,
+      예외적 특정 상황에서만 사용될 조건을 걸어주고 싶을 경우에만 '@Secured' 또는 '@PreAuthorize'를 사용하면 됨.
+    -  그런 예외적 특정 상황을 설정하지 않고 싶다면, '@Secured', '@PreAuthorize' 및 이 어노테이션들이 붙을 컨트롤러 메소드를
+      애초에 작성하지 않아도 된다!
+
+    - '클래스 SecurityConfig'의 내부에 작성한 '글로벌로 URL 접근 제한 조건들 이미 다 설정'한 코드
+    (2) URL주소 '/manager/**'로 들어오는 입력은, 'ROLE_ADMIN'권한 또는 'ROLE_MANAGER' 권한이 있는
+        사람만 접근 가능하도록 설정함.
+        .antMatchers("/manager/**").access("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    (3) URL주소 '/manager/**'로 들어오는 입력은, 'ROLE_ADMIN'권한이 있는 사람만 접근 가능하도록 설정함.
+        .antMatchers("/admin/**").access("hasRole('ROLE_ADMIN')")
+
+     */
+
     //- 외부 클래스에서 아래 컨트롤러 메소드 info를 호출하여 사용하고자 할 때(=호출 전에), 사용자 권한 검사를 수행함.
     //- '컨트롤러 IndexController의 메소드 info'위에 '@Secured('ROLE_ADMIN', 'ROLE_MANAGER)'이 붙어 있으며,
     //  '이 메소드의 URL주소 @GetMapping("/info"), 즉 "/info"'에 접근하려면, '관리자 권한('ROLE_ADMIN')'
@@ -199,7 +214,22 @@ public class IndexController {
 
     //< @PreAuthroize(...) >
 
-    //- 스프링시큐리티의 '컨트롤러 메소드 수준'에서의 보안 권한 검사에 권장되는 어노테이션임.
+    /*
+    - '클래스 SecurityConfig' 내부에 아래처럼 '글로벌로 URL 접근 제한 조건들 다 설정'했음에도,
+      예외적 특정 상황에서만 사용될 조건을 걸어주고 싶을 경우에만 '@Secured' 또는 '@PreAuthorize'를 사용하면 됨.
+    -  그런 예외적 특정 상황을 설정하지 않고 싶다면, '@Secured', '@PreAuthorize' 및 이 어노테이션들이 붙을 컨트롤러 메소드를
+      애초에 작성하지 않아도 된다!
+
+    - '클래스 SecurityConfig'의 내부에 작성한 '글로벌로 URL 접근 제한 조건들 이미 다 설정'한 코드
+    (2) URL주소 '/manager/**'로 들어오는 입력은, 'ROLE_ADMIN'권한 또는 'ROLE_MANAGER' 권한이 있는
+        사람만 접근 가능하도록 설정함.
+        .antMatchers("/manager/**").access("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
+    (3) URL주소 '/manager/**'로 들어오는 입력은, 'ROLE_ADMIN'권한이 있는 사람만 접근 가능하도록 설정함.
+        .antMatchers("/admin/**").access("hasRole('ROLE_ADMIN')")
+
+     */
+
+    //- 실무에서 가장 사용 많음. 스프링시큐리티의 '컨트롤러 메소드 수준'에서의 보안 권한 검사에 권장되는 어노테이션임.
     //  복잡한 권한 표현식을 다루어야 하는 경우 유용함.
     //- 외부 클래스에서 아래 컨트롤러 메소드 data를 호출하여 사용하고자 할 때(=호출 전에), 사용자 권한 검사를 수행함.
     //- '컨트롤러 IndexController의 메소드 data'위에 '@PreAuthorize(hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")'이
@@ -211,6 +241,7 @@ public class IndexController {
     //- '클래스 단위 위에 붙는 @EnbableGlobalMethodSecurity(prePostEnabled = true)'를 사용하면, 스프링은
     //  '컨트롤러 메소드 단위 위에 붙는 @PreAuthroize(...)'를 인식하고, 웹 애플리케이션에서 특정한 권한 또는 역할을 가진 사용자만이
     //  해당 메소드를 호출할 수 있도록 제한한다.
+
 
 
     //< '@PreAuthroize(...)'와 '@Secured(...)'의 차이점 >
@@ -262,6 +293,15 @@ public class IndexController {
     //============================================================================================
 
 
+
+
+    //============================================================================================
+
+
+
+
+
+    //============================================================================================
 
 
 
