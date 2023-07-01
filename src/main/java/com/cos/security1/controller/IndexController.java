@@ -3,6 +3,8 @@ package com.cos.security1.controller;
 import com.cos.security1.model.User;
 import com.cos.security1.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -139,8 +141,7 @@ public class IndexController {
 
         //userRepository.save(user);
         //- 만약, 이 단계에서 db로 저장시키면, 회원가입 자체는 잘 되지만,
-        //  비밀번호가 '숫자 1234' 이렇게 직접 노트북 화면에 보여지게 되어, 시큐리티로 로그인 불가함.
-        //  이유는, 패스워드가 암호화가 안 되었기 때문에.
+        //  비밀번호가 암호화(인코디드)가 안 되어있는 상태이기 때문에, 시큐리티로 로그인 불가함.
 
 
         String rawPassword = user.getPassword();
@@ -148,8 +149,7 @@ public class IndexController {
         user.setPassword(encPassword);
 
         //회원가입 완료.
-        //비밀번호 '숫자 1234'로는 이제 스프링 시큐리티를 이용하면 로그인할 수 없음.
-        //왜냐하면, '날 것 그대로의 숫자 1234'라는 패스워드는 암호화(인코딩)가 안 되어있기 때문이다!
+        //패스워드 암호화(인코딩)까지 완료해서 최종적으로 회원가입 완료.
         userRepository.save(user);
 
 
@@ -159,6 +159,87 @@ public class IndexController {
 
 
     //============================================================================================
+
+    //[ '스프링부트 시큐리티 5강 - 시큐리티 권한처리'강 05:15~ ]
+
+    //< @Secured(...) >
+
+    //- 외부 클래스에서 아래 컨트롤러 메소드 info를 호출하여 사용하고자 할 때(=호출 전에), 사용자 권한 검사를 수행함.
+    //- '컨트롤러 IndexController의 메소드 info'위에 '@Secured('ROLE_ADMIN', 'ROLE_MANAGER)'이 붙어 있으며,
+    //  '이 메소드의 URL주소 @GetMapping("/info"), 즉 "/info"'에 접근하려면, '관리자 권한('ROLE_ADMIN')'
+    //  또는(or) '매니저 권한(ROLE_MANGER)' 이 있는 사용자여야 그 URL주소에 접근할 수 있다!
+    //- 외부 클래스에서 이 어노테이션이 붙어 있는 '컨트롤러 메소드 info'를 호출하여 사용하려면(@GetMapping(...) 등의
+    //  내부의 URL주소에 접근하려면), '괄호 안에 있는 권한, 역할'을 가지고 있는 사용자여야 한다.
+    //- '클래스 SecurityConfig'에 붙어 있는 '@EnbableGlobalMethodSecurity(securedEnabled = true)'와 같이 연동되어 사용됨.
+    //- '클래스 단위 위에 붙는 @EnbableGlobalMethodSecurity(securedEnabled = true)'를 사용하면, 스프링은
+    //  '컨트롤러 메소드 단위 위에 붙는 @Secured(...)'를 인식하고, 웹 애플리케이션에서 특정한 권한 또는 역할을 가진 사용자만이
+    //  해당 메소드를 호출할 수 있도록 제한한다.
+
+
+    @Secured({"ROLE_ADMIN", "ROLE_MANAGER"})
+    //- '관리자 권한(ROLE_ADMIN)' 또는(or) '매니저 권한(ROLE_MANGER)' 둘 중 하나의 권한이 있는 사용자만
+    //  이 컨트롤러 메소드 info의 URL주소에 접근할 수 있음.
+    //- *****중요*****
+    // '@Secured'는 '다중 역할 권한 and 조건'은 사용할 수 없다!
+    //  즉, '관리자 권한(ROLE_ADMIN)' 그리고(and) '매니저 권한(ROLE_MANGER)'을 '둘 다 동시(and)'에 갖고 있는 사용자만
+    //  접근 가능하도록 설정하는 것이 불가능!
+    //  그렇게 설정하고 싶은 경우에는, '@PreAuthorize'를 사용해야 한다!
+    @GetMapping("/info")
+    public @ResponseBody String info(){
+
+        return "개인정보";
+    }
+
+
+
+    //============================================================================================
+
+
+    //[ '스프링부트 시큐리티 5강 - 시큐리티 권한처리'강 09:20~ ]
+
+    //< @PreAuthroize(...) >
+
+    //- 외부 클래스에서 아래 컨트롤러 메소드 info2를 호출하여 사용하고자 할 때(=호출 전에), 사용자 권한 검사를 수행함.
+    //- '컨트롤러 IndexController의 메소드 info2'위에 '@PreAuthorize(hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")'이
+    //  붙어 있으며, '이 메소드의 URL주소 @GetMapping("/info2"), 즉 "/info2"'에 접근하려면, '관리자 권한('ROLE_ADMIN')'
+    //  또는(or) '매니저 권한(ROLE_MANGER)' 이 있는 사용자여야 그 URL주소에 접근할 수 있다!
+    //- 외부 클래스에서 이 어노테이션이 붙어 있는 '컨트롤러 메소드 info2'를 호출하여 사용하려면(@GetMapping(...) 등의
+    //  내부의 URL주소에 접근하려면), '괄호 안에 있는 권한, 역할'을 가지고 있는 사용자여야 한다.
+    //- '클래스 SecurityConfig'에 붙어 있는 '@EnbableGlobalMethodSecurity(prePostEnabled = true)'와 같이 연동되어 사용됨.
+    //- '클래스 단위 위에 붙는 @EnbableGlobalMethodSecurity(prePostEnabled = true)'를 사용하면, 스프링은
+    //  '컨트롤러 메소드 단위 위에 붙는 @PreAuthroize(...)'를 인식하고, 웹 애플리케이션에서 특정한 권한 또는 역할을 가진 사용자만이
+    //  해당 메소드를 호출할 수 있도록 제한한다.
+
+
+    //< '@PreAuthroize(...)'와 '@Secured(...)'의 차이점 >
+
+    //# 표현식의 유연성
+    //- '@PreAuthroize'는, 'SpEL(SPRING EXPRESSION LANGUAGE)'을 사용하여 '풍부한 표현식'을 제공함.
+    //  예를 들어, 역할, 권한, 커스텀 메소드, 메소드 인수 등을 접근 제한 조건으로 사용할 수 있음.
+    //  e.g) @PreAuthorize("hasRole('ROLE_ADMIN') or (hasRole('ROLE_USER') and #user.getId() == authentication.principal.id)")
+    //       '관리자 권한(ROLE_ADMIN)'이 있는 사용자이거나,
+    //       '일반 사용자(ROLE_USER)'이면서(=and) 그 사용자의 아이디가 '현재 컨트롤러 메소드 info2의 매개변수 user'의
+    //       user 아이디가 같은 경우,
+    //       이 컨트롤러 메소드의 URL주소에 접근 가능함.
+    //- '@Secured'는, SpEL을 사용할 수 없으며
+
+    @PreAuthorize("hasRole('ROLE_MANAGER') and hasRole('ROLE_ADMIN')")
+    //- '관리자 권한(ROLE_ADMIN)' 그리고(and) '매니저 권한(ROLE_MANGER)'을 '둘 다 동시(and)'에 갖고 있는 사용자만
+    //  접근 가능하도록 설정함.
+    //- 이 'and 조건'은 '@Secured'에서는 불가능하고, 오직 '@PreAuthorize'에서만 가능함.
+    //- 물론, 당연히 그냥 '또는(or)' 조건을 적용하는 것도 가능함.
+    @GetMapping("/info2")
+    public @ResponseBody String info2(User user){
+
+        return "개인정보";
+    }
+
+
+
+    //============================================================================================
+
+
+
 
 
 

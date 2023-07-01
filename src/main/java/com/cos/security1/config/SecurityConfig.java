@@ -2,6 +2,7 @@ package com.cos.security1.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -14,9 +15,24 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 //============================================================================================
 
 
-//'스프링 시큐리티 필터'를 '스프링 시큐리티 필터 체인'에 등록시키는 어노테이션.
-//여기서 '스프링 시큐리티 필터'란 여기의 '클래스 SecurityConfig'를 말하는 것임.
+//- @EnableWebSecurity: '스프링 시큐리티 필터'를 '스프링 시큐리티 필터 체인'에 등록시키는 어노테이션.
+//                      여기서 '스프링 시큐리티 필터'란 여기의 '클래스 SecurityConfig'를 말하는 것임.
 @EnableWebSecurity
+
+//< @EnableGlobalMethodSecurity >
+
+//- '외부 클래스에서 호출하고자 하는 특정 컨트롤러 메소드 위에 붙어 있는 '@Secured(...)''와 함께 연동되어 사용되며,
+//  외부 클래스에서 @Secured(...) 어노테이션이 붙어 있는 '메소드'를 호출하여 사용하려면(@GetMapping(...) 등 내부의 URL주소에 접근하려면),
+//  '그 괄호 안에 있는 권한, 역할'을 가지고 있는 사용자여야 한
+//- '클래스 단위 위에 붙는 @EnbableGlobalMethodSecurity(securedEnabled = true)'를 사용하면, 스프링은
+//  '컨트롤러 메소드 단위 위에 붙는 @Secured(...)'를 인식하고, 웹 애플리케이션에서 특정한 권한 또는 역할을 가진 사용자만이
+//  해당 메소드를 호출할 수 있도록 제한한다.
+//- 여기서는 '컨트롤러 IndexController의 메소드 info'위에 '@Secured('ROLE_ADMIN')'이 붙어 있으며,
+//  '이 메소드의 URL주소 @GetMapping("/info"), 즉 "/info"'에 접근하려면, '관리자 권한('ROLE_ADMIN')'이 있는 사용자여야
+//  그 URL주소에 접근할 수 있다!
+//- 'securedEnabled = true': '컨트롤러 메소드 info'의 위에 붙어 있는 '어노테이션 @Secured'을 사용하기 위해, 이를 활성화시킴.
+//- 'prePostEnabled = true': '컨트롤러 메소드 info2'의 위에 붙어 있는 '어노테이션 @PreAuthorize'를 사용하기 위해, 이를 활성화시킴.
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 @Configuration //현재 클래스가, '구성 클래스'임을 나타내줌.
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
