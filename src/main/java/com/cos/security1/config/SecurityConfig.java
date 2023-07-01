@@ -83,7 +83,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 //(5)-4 사용자 인증이 성공했다면(로그인이 성공했다면), 그 사용자가 최초에 원래 접속하려던 페이지의 URL이 아닌,
                 //      루트 경로인 '/'로 그 사용자를 보내줌(리다이렉트해줌)
-                .defaultSuccessUrl("/");
+                .defaultSuccessUrl("/")
+                .and()
+
+                //(6) 구글 등 외부 로그인 oauth2 설정
+                //    순서1) 'yml 설정 파일'에 'oauth2.client. ...' 이하 내용 적어주고,
+                //    순서2) '로그인 폼 form'을 담당하는 '뷰 loginForm.html'에 구글 로그인 페이지로 연결해주는 하이퍼링크 작성하고,
+                //          (= '<a href="/oauth2/authorization/google">구글 로그인입니다</a>')
+                //    순서2) 그리고, 여기 아래 코드 두 줄만 적어주면 끝.
+                //          '컨트롤러 메소드' 등 별도로 적어줄 것 없음. 왜냐하면, 구글에서 다 처리해주기 때문임.
+                .oauth2Login()
+                .loginPage("/loginForm");
+
 
     }
 
