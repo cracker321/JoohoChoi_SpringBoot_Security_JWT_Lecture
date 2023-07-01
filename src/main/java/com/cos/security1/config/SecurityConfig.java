@@ -31,7 +31,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 //  '이 메소드의 URL주소 @GetMapping("/info"), 즉 "/info"'에 접근하려면, '관리자 권한('ROLE_ADMIN')'이 있는 사용자여야
 //  그 URL주소에 접근할 수 있다!
 //- 'securedEnabled = true': '컨트롤러 메소드 info'의 위에 붙어 있는 '어노테이션 @Secured'을 사용하기 위해, 이를 활성화시킴.
-//- 'prePostEnabled = true': '컨트롤러 메소드 info2'의 위에 붙어 있는 '어노테이션 @PreAuthorize'를 사용하기 위해, 이를 활성화시킴.
+//- 'prePostEnabled = true': '컨트롤러 메소드 data'의 위에 붙어 있는 '어노테이션 @PreAuthorize'를 사용하기 위해, 이를 활성화시킴.
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 @Configuration //현재 클래스가, '구성 클래스'임을 나타내줌.
 public class SecurityConfig extends WebSecurityConfigurerAdapter {

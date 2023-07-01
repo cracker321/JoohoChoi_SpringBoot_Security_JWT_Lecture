@@ -199,11 +199,13 @@ public class IndexController {
 
     //< @PreAuthroize(...) >
 
-    //- 외부 클래스에서 아래 컨트롤러 메소드 info2를 호출하여 사용하고자 할 때(=호출 전에), 사용자 권한 검사를 수행함.
-    //- '컨트롤러 IndexController의 메소드 info2'위에 '@PreAuthorize(hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")'이
-    //  붙어 있으며, '이 메소드의 URL주소 @GetMapping("/info2"), 즉 "/info2"'에 접근하려면, '관리자 권한('ROLE_ADMIN')'
+    //- 스프링시큐리티의 '컨트롤러 메소드 수준'에서의 보안 권한 검사에 권장되는 어노테이션임.
+    //  복잡한 권한 표현식을 다루어야 하는 경우 유용함.
+    //- 외부 클래스에서 아래 컨트롤러 메소드 data를 호출하여 사용하고자 할 때(=호출 전에), 사용자 권한 검사를 수행함.
+    //- '컨트롤러 IndexController의 메소드 data'위에 '@PreAuthorize(hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")'이
+    //  붙어 있으며, '이 메소드의 URL주소 @GetMapping("/data"), 즉 "/data"'에 접근하려면, '관리자 권한('ROLE_ADMIN')'
     //  또는(or) '매니저 권한(ROLE_MANGER)' 이 있는 사용자여야 그 URL주소에 접근할 수 있다!
-    //- 외부 클래스에서 이 어노테이션이 붙어 있는 '컨트롤러 메소드 info2'를 호출하여 사용하려면(@GetMapping(...) 등의
+    //- 외부 클래스에서 이 어노테이션이 붙어 있는 '컨트롤러 메소드 data'를 호출하여 사용하려면(@GetMapping(...) 등의
     //  내부의 URL주소에 접근하려면), '괄호 안에 있는 권한, 역할'을 가지고 있는 사용자여야 한다.
     //- '클래스 SecurityConfig'에 붙어 있는 '@EnbableGlobalMethodSecurity(prePostEnabled = true)'와 같이 연동되어 사용됨.
     //- '클래스 단위 위에 붙는 @EnbableGlobalMethodSecurity(prePostEnabled = true)'를 사용하면, 스프링은
@@ -214,24 +216,45 @@ public class IndexController {
     //< '@PreAuthroize(...)'와 '@Secured(...)'의 차이점 >
 
     //# 표현식의 유연성
+
     //- '@PreAuthroize'는, 'SpEL(SPRING EXPRESSION LANGUAGE)'을 사용하여 '풍부한 표현식'을 제공함.
     //  예를 들어, 역할, 권한, 커스텀 메소드, 메소드 인수 등을 접근 제한 조건으로 사용할 수 있음.
     //  e.g) @PreAuthorize("hasRole('ROLE_ADMIN') or (hasRole('ROLE_USER') and #user.getId() == authentication.principal.id)")
     //       '관리자 권한(ROLE_ADMIN)'이 있는 사용자이거나,
-    //       '일반 사용자(ROLE_USER)'이면서(=and) 그 사용자의 아이디가 '현재 컨트롤러 메소드 info2의 매개변수 user'의
+    //       '일반 사용자(ROLE_USER)'이면서(=and) 그 사용자의 아이디가 '현재 컨트롤러 메소드 data의 매개변수 user'의
     //       user 아이디가 같은 경우,
     //       이 컨트롤러 메소드의 URL주소에 접근 가능함.
-    //- '@Secured'는, SpEL을 사용할 수 없으며
+    //- '@Secured'는, SpEL을 사용할 수 없으며, 단순한 '역할 기반'의 접근 제어가 필요한 경우에만 사용됨.
+    //  '@PreAuthorize'가 붙은 컨트롤러 메소드에는 '매개변수(아래에서의 User user)'를 사용할 수 있지만,
+    //  '@Secured'에서는 컨트롤러 메소드의 매개변수 및 인수를 사용할 수 없음.
+
+
+    //# 다중 권한 처리
+
+    //- '@PreAuthroize'는, 여러 개의 권한 표현식을 조합하여 사용할 수 있음.
+    //  e.g) @PreAuthroize("hasRole('ROLE_MANAGER) and hasRole('ROLE_ADMIN')")
+    //      : 매니저 권한(ROLE_MANAGER) 그리고(and) 관리자 권한(ROLE_ADMIN)을 가진 사용자만
+    //        이 컨트롤러 메소드의 URL주소에 접근 가능함.
+    //- '@Secured'는, 여러 개의 권한 역할이 적혀 있는 경우, 무조건 '또는(or 조건)'임.
+    //  '여러 권한을 모두 만족하는(=and 조건) 사용자'를 제한하는 표현식은 작성할 수 없음.
+
+
+    //# 어노테이션 적용 위치
+
+    //- '@PreAuthroize'는, '컨트롤러 메소드 레벨' 뿐 아니라, '클래스 레벨'에도 적용할 수 있음.
+    //  '클래스 레벨'에 적용하면, 해당 클래스의 모든 메소드에 동일한 권한 검사가 적용됨.
+    //- '@Secured'는,'컨트롤러 메소드 레벨'에 적용되며, '클래스 레벨'에는 적용할 수 없음.
+
 
     @PreAuthorize("hasRole('ROLE_MANAGER') and hasRole('ROLE_ADMIN')")
     //- '관리자 권한(ROLE_ADMIN)' 그리고(and) '매니저 권한(ROLE_MANGER)'을 '둘 다 동시(and)'에 갖고 있는 사용자만
     //  접근 가능하도록 설정함.
     //- 이 'and 조건'은 '@Secured'에서는 불가능하고, 오직 '@PreAuthorize'에서만 가능함.
-    //- 물론, 당연히 그냥 '또는(or)' 조건을 적용하는 것도 가능함.
-    @GetMapping("/info2")
-    public @ResponseBody String info2(User user){
+    //- 물론, @PreAuthorize에서도 당연히 '또는(or)' 조건을 적용하는 것도 가능함.
+    @GetMapping("/data")
+    public @ResponseBody String data(User user){
 
-        return "개인정보";
+        return "데이터정보";
     }
 
 
