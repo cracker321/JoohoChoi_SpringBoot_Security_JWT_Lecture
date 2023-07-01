@@ -160,9 +160,8 @@ public class IndexController {
 
     //============================================================================================
 
-    //[ '스프링부트 시큐리티 5강 - 시큐리티 권한처리'강 05:15~ ]
 
-    //< @Secured(...) >
+    //[ '스프링부트 시큐리티 5강 - 시큐리티 권한처리'강 05:15~ ]
 
     /*
     - '클래스 SecurityConfig' 내부에 아래처럼 '글로벌로 URL 접근 제한 조건들 다 설정'했음에도,
@@ -176,8 +175,10 @@ public class IndexController {
         .antMatchers("/manager/**").access("hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')")
     (3) URL주소 '/manager/**'로 들어오는 입력은, 'ROLE_ADMIN'권한이 있는 사람만 접근 가능하도록 설정함.
         .antMatchers("/admin/**").access("hasRole('ROLE_ADMIN')")
-
      */
+
+
+    //< @Secured(...) >
 
     //- 외부 클래스에서 아래 컨트롤러 메소드 info를 호출하여 사용하고자 할 때(=호출 전에), 사용자 권한 검사를 수행함.
     //- '컨트롤러 IndexController의 메소드 info'위에 '@Secured('ROLE_ADMIN', 'ROLE_MANAGER)'이 붙어 있으며,
@@ -212,8 +213,6 @@ public class IndexController {
 
     //[ '스프링부트 시큐리티 5강 - 시큐리티 권한처리'강 09:20~ ]
 
-    //< @PreAuthroize(...) >
-
     /*
     - '클래스 SecurityConfig' 내부에 아래처럼 '글로벌로 URL 접근 제한 조건들 다 설정'했음에도,
       예외적 특정 상황에서만 사용될 조건을 걸어주고 싶을 경우에만 '@Secured' 또는 '@PreAuthorize'를 사용하면 됨.
@@ -228,6 +227,10 @@ public class IndexController {
         .antMatchers("/admin/**").access("hasRole('ROLE_ADMIN')")
 
      */
+
+
+    //< @PreAuthroize(...) >
+
 
     //- 실무에서 가장 사용 많음. 스프링시큐리티의 '컨트롤러 메소드 수준'에서의 보안 권한 검사에 권장되는 어노테이션임.
     //  복잡한 권한 표현식을 다루어야 하는 경우 유용함.
