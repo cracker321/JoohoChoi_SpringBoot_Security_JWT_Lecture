@@ -87,10 +87,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
 
                 //(6) 구글 등 외부 로그인 oauth2 설정
-                //    순서1) 'yml 설정 파일'에 'oauth2.client. ...' 이하 내용 적어주고,
+                //    순서1) 'yml 설정 파일'에 'spring.security.oauth2.client. ...' 이하 내용 적어주고,
                 //    순서2) '로그인 폼 form'을 담당하는 '뷰 loginForm.html'에 구글 로그인 페이지로 연결해주는 하이퍼링크 작성하고,
                 //          (= '<a href="/oauth2/authorization/google">구글 로그인입니다</a>')
-                //    순서2) 그리고, 여기 아래 코드 두 줄만 적어주면 끝.
+                //    순서3) 그리고, 여기 아래 코드 두 줄만 적어주면 끝.
                 //          '컨트롤러 메소드' 등 별도로 적어줄 것 없음. 왜냐하면, 구글에서 다 처리해주기 때문임.
                 .oauth2Login()
                 .loginPage("/loginForm");
