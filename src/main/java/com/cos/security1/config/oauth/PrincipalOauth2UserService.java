@@ -9,13 +9,11 @@ import org.springframework.stereotype.Service;
 
 //[ '스프링부트 시큐리티 7강 - 구글 회원 프로필 정보 받아보기'강 05:00~ ]
 
-
-
 //  < 클래스 PrinciplOauth2UserService 객체 >
 
-//- '내장 클래스 DefaultOAuth2UserService'를 '상속 extends'한 임의의 사용자 정의 서비스.
-//  'PrincipalOauth2UserService 객체'는 해당 사용자에 대한 OAuth2 인증을 하고,
-//  이 객체 내부에서 그 인증을 완료하면, 그 인증 완료된 사용자 정보를 포함(반환)하고 있음
+//- '스프링 시큐리티 내장 클래스 DefaultOAuth2UserService'를 '상속 extends'한 임의의 사용자 정의 서비스.
+//  'PrincipalOauth2UserService 객체'는 해당 사용자에 대한 OAuth2 인증(=구글 로그인 인증)을 하고,
+//  이 객체 내부에서 그 인증을 완료하면, 그 인증 완료된 사용자 정보(=내장 OAuth2User 객체)를 포함(반환)하고 있음
 //- 이 클래스 내부의 '오버라이딩된 메소드 loadUser'에서, 그 활용 처리 방법을 정의함.
 //  '오버라이딩된 메소드 loadUser'는, 'OAuth
 
@@ -66,7 +64,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 
 
     // 순서3) 구글로부터 받아온 '사용자 프로필 정보'를 기반으로 '내장 OAuth2User 객체'를 생성함.
-    // - 이 '내장 OAuth2User 객체'는, (로그인)인증된 사용자의 정보를 담고 있는 '인터페이스'임.
+    // - 이 '(로그인)인증된 사용자 정보를 담고 있는 내장 OAuth2User 객체'는 '인터페이스'임.
     //   사용자의 식별자(id값), 이름, 이메일 등의 속성을 포함하고 있음.
 
 
@@ -75,11 +73,17 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
     //   '기본 구현'의 역할은 '구글로부터 사용자 프로필 정보를 가져오고', 'OAuth2User 객체를 생성'하여 '반환 return'해주는 것임.
 
 
+    //--------------------------------------------------------------------------------------------
+
+    //[ '스프링부트 시큐리티 8강 - Authentication객체가 가질 수 있는 2가지 타입'강 00:00s~ ]
+
+
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException{
 
         return super.loadUser(userRequest);
     }
+
 
 
     //============================================================================================
