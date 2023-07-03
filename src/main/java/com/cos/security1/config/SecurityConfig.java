@@ -1,5 +1,7 @@
 package com.cos.security1.config;
 
+import com.cos.security1.config.oauth.PrincipalOauth2UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -35,6 +37,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 @Configuration //현재 클래스가, '구성 클래스'임을 나타내줌.
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+
+
+    @Autowired
+    private PrincipalOauth2UserService principalOauth2UserService;
 
 
     //============================================================================================
@@ -86,14 +93,55 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .defaultSuccessUrl("/")
                 .and()
 
-                //(6) 구글 등 외부 로그인 oauth2 설정
+                //(6) 구글 등 외부 로그인 oauth2 설정. '라이브러리 oauth2'를 사용하는 것임.
                 //    순서1) 'yml 설정 파일'에 'spring.security.oauth2.client. ...' 이하 내용 적어주고,
-                //    순서2) '로그인 폼 form'을 담당하는 '뷰 loginForm.html'에 구글 로그인 페이지로 연결해주는 하이퍼링크 작성하고,
+                //    순서2) '.loginPage("/loginForm")'
+                //          : '구글 로그인 전'에 사용자를 '뷰 loginForm.html'로 보내줘서, 사용자에게 '로그인 폼'을
+                //            보여주어서, 사용자가 로그인할 수 있는 노트북 화면을 보여주고,
+                //    순서3) '로그인 폼 form'을 담당하는 '뷰 loginForm.html'에 구글 로그인 페이지로 연결해주는
+                //          하이퍼링크 작성하고,
                 //          (= '<a href="/oauth2/authorization/google">구글 로그인입니다</a>')
-                //    순서3) 그리고, 여기 아래 코드 두 줄만 적어주면 끝.
+                //    순서4) 그리고, 여기 아래 코드 두 줄만 적어주면 끝.
                 //          '컨트롤러 메소드' 등 별도로 적어줄 것 없음. 왜냐하면, 구글에서 다 처리해주기 때문임.
+                //    순서5) 구글 로그인이 완료되면, 사용자를 '/loginForm'으로 보내는 것이 아닌,
+                //          '설정된 리다이렉션 경로'로 보냄(e.g: '.defaultSuccessUrl("/")'와 같은 것).
                 .oauth2Login()
-                .loginPage("/loginForm");
+                .loginPage("/loginForm")
+
+
+                //(7) 구글 로그인 인증(=OAuth2 인증)이 완료된 뒤, 그 후 절차임
+                //    - 구글 로그인이 완료되면,
+                //      개발자는 구글API로부터 'OAuth2UserRequest 객체'를 반환받는데,
+                //      이를 인자값으로 받아 사용하여, 구글 API로부터 '사용자 프로필 정보 내장 OAuth2User 객체'를 가져옴.
+                //    - 'OAuth2User 객체'는 사용자의 프로필 정보(이름, 이메일, 프로필사진 등)를 담고 있음.
+
+                //    순서1) '메소드 userInfoEndpoint()'
+                //    - 구글 로그인을 사용할 경우 구글이 제공하는 사용자 정보 API에 접근할 수 있는 엔드포인트입니다.
+                //      사용자 정보 엔드포인트란, 구글 페북 등의 사용자 인증이 완료된 후,
+                //      해당 OAuth2 제공자(구글, 페이스북 등)로부터 사용자 데이터(프로필 정보 등)를 가져오기 위한 사전 작업으로,
+                //      구글 API 요청을 설정하는 것임.
+
+                //    순서2)-1 '메소드 userService()'
+                //    - 스프링 시큐리티에서 제공하는 웹 보안을 설정하는 데 사용되는
+                //    '내장 클래스 HttpSercurity 객체의 내장 메소드 userService'로,
+                //    '사용자 서비스 객체 PrincipalOauth2UserService'를 인자값으로 받아들여, '사용자 서비스'를 설정하는 역할임.
+                //    '인자값으로 들어온 PrincipalOauth2UserService 객체'는 OAuth2 인증을 완료시킨 후,
+                //    사용자 프로필 정보(=내장 OAuth2User 객체)를 들고(포함하고, 반환하고) 있는데,
+                //    이 사용자 프로필 정보(=내장 OAuth2User 객체)를 어떻게 활용할지를 정의하는 '메소드 userService'.
+                //    cf 1) 'HttpSecurity 객체'
+                //          : 스프링 시큐리티의 다양한 기능 제어를 지원하는 대상.
+                //            이를 통해 인증 요청, CSRF 방지, 세션 관리 등을 포함한 많은 보안 설정 가능하게 함.
+
+                //    순서2)-2 '인자값으로 들어온 클래스 PrinciplOauth2UserService 객체'
+                //    - '내장 클래스 DefaultOAuth2UserService'를 '상속 extends'한 임의의 사용자 정의 서비스.
+                //    'PrincipalOauth2UserService 객체'는 해당 사용자에 대한 OAuth2 인증을 하고,
+                //    내부에서 그 인증을 완료하면, 그 인증 완료된 사용자 정보(=내장 OAuth2User 객체)를 포함(반환)하고 있는 역할임.
+                //    '메소드 userService'는 그 OAuth2로 인증된 사용자 정보(=내장 OAuth2User 객체)를 인자값으로 받아서,
+                //    '해당 사용자 서비스를 호출'하는 역할임.
+                //    - 'OAuth2User 객체'는 사용자의 프로필 정보(이름, 이메일, 프로필사진 등)를 담고 있음.
+
+                .userInfoEndpoint()
+                .userService(principalOauth2UserService);
 
 
     }
