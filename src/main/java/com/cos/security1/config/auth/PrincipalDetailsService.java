@@ -2,6 +2,7 @@ package com.cos.security1.config.auth;
 
 import com.cos.security1.model.User;
 import com.cos.security1.repository.UserRepository;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

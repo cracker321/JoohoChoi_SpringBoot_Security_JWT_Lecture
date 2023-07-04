@@ -70,17 +70,20 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 
     // 순서4) '생성된 사용자 프로필 정보 OAuth2User 객체를 반환'함: return super.loadUser(userRequest)
     // - '내장 클래스 DefaultOAuth2UserService'의 '내장 메소드 loadUser'를 호출하여, 기본 구현을 활용함.
-    //   '기본 구현'의 역할은 '구글로부터 사용자 프로필 정보를 가져오고', 'OAuth2User 객체를 생성'하여 '반환 return'해주는 것임.
+    //   '기본 구현'의 역할은 '구글로부터 사용자 프로필 정보를 가져오고',
+    //   'OAuth2User 객체를 생성'하여, 그 'OAuth2User 객체에 그 사용자의 프로필 정보를 담아'서 '반환 return'해주는 것임.
 
 
     //--------------------------------------------------------------------------------------------
 
-    //[ '스프링부트 시큐리티 8강 - Authentication객체가 가질 수 있는 2가지 타입'강 00:00s~ ]
+    //[ '스프링부트 시큐리티 8강 - Authentication객체가 가질 수 있는 2가지 타입'강 00:00~ ]
 
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException{
 
+        //강제 회원가입
+        OAuth2User oAuth2User = super.loadUser(userRequest);
         return super.loadUser(userRequest);
     }
 

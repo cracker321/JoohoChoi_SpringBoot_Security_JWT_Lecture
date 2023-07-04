@@ -12,6 +12,7 @@ package com.cos.security1.config.auth;
 
 
 import com.cos.security1.model.User;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,6 +30,8 @@ import java.util.Collection;
 //- 이 클래스는 '내장 인터페이스 UserDetails'를 구현하고, 인증된 사용자의 정보를 스프링 시큐리티에 전달하는 역할임.
 
 
+
+@Data
 @RequiredArgsConstructor
 public class PrincipalDetails implements UserDetails {
 
