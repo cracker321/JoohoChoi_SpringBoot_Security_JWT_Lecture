@@ -56,7 +56,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 
     // 순서2)-2 'ClientRegistration 객체'를 사용하여, 구글(=OAuth2 공급자)에게 '엑세스 토큰 AccessToken'을 요청하여 발급받아온다.
     // - '엑세스 토큰'은 구글로부터 발급되는 인증 토큰임. 이 토큰은, (로그인)인증된 사용자를 식별하고 그 사용자에게 권한을 부여하는 데
-    //   사용됨.
+    //   사용됨.ㄷ
 
 
     // 순서2)-3 '순서 2)-2'에서 구글로부터 발급받은 '엑세스 토큰'을 사용하여, 이제 구글에게 그 (로그인)인증된 사용자 정보를 요청한다.

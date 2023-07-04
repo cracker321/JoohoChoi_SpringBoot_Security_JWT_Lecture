@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,26 +33,39 @@ public class IndexController {
     //============================================================================================
 
 
-    //[ '스프링부트 시큐리티 8강 - Authentication객체가 가질수 있는 2가지 타입'강 00:00~ ]
+    //[ '스프링부트 시큐리티 8강 - Authentication객체가 가질 수 있는 2가지 타입'강 00:00~ ]
 
-    //< 강제 회원가입 >
+    //'Authentication 객체'가 가질 수 있는 두 가지 타입은,
+    //- 1.UserDetails 객체 타입: '일반 로그인'할 때 사용됨.
+    //- 2.OAuth2User 객체 타입: '소셜 로그인(OAuth2 로그인)'할 때 사용됨.
 
 
+    //< 내장 Authentication 객체 >
 
-    @GetMapping("/test/login")
-    public @ResponseBody String testLogin(Authentication authentication,
-                                          @AuthenticationPrincipal PrincipalDetails userDetails){
-        //- '내장 클래스 Authentication'를 의존성 주입 DI해줌.
+    //- 스프링 시큐리티에서 '사용자의 신원을 확인하는 과정'에서 사용되며, '로그인(인증)에 성공한 사용자'를 나타내는 객체임.
+    //  사용자가 누구인지 확인하고, 애플리케이션에 대한 접근 '권한'이 있는지 확인하는 절차임.
+    //  일반적으로, 사용자는 ID, 비밀번호, 이메일 또는 소셜 계정 등을 통해 인증됨.
+    //- '내장 Authentication 객체'는, '내장 Principal 객체'와 '내장 Credentials 객체'를 포함하여 구성됨.
+    //- '내장 Principal 객체'
+    //   :'인증된 사용자(=사용자의 인증 정보)를 나타내는 객체'로,
+    //    주로 사용자의 신원정보(=식별자)(이름 username, 이메일 email 등)를 포함하고 있음.
+    //- '내장 Credentials 객체'
+    //   : '사용자가 제공한 자격 증명(비밀번호, 토큰 등)'을 나타내는 객체임.
+
+    @GetMapping("/test/oauth/login")
+    public @ResponseBody String testOAuthLogin(Authentication authentication,
+                                               @AuthenticationPrincipal OAuth2User oauth){
+        //- '내장 클래스 Authentication 객체'를 의존성 주입 DI해줌.
 
         System.out.println("/test/login ===============");
 
-        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+        OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
 
-        System.out.println("(authentication" + principalDetails.getUser());
+        System.out.println("authentication" + oauth2User.getAttributes());
 
-        System.out.println("userDetails: "+ userDetails.getUser());
+        System.out.println("oauth2User: " + oauth.getAttributes());
 
-        return "세션 정보 확인하기";
+        return "OAuth2 세션 정보 확인하기";
 
     }
     
@@ -72,9 +86,13 @@ public class IndexController {
 
     //[ '스프링부트 시큐리티 2강 - 시큐리티 설정'강 00:00~ ]
 
+    //[ '스프링부트 시큐리티 9강 - 구글 로그인 및 자동 회원가입 진행 완료'강 00:00~ ]
 
+    //사용자가 '일반 로그인'을 하든, 'OAuth2 로그인(소셜 로그인)'을 하든 상관 없이
     @GetMapping("/user")
-    public @ResponseBody String user(){
+    public @ResponseBody String user(@AuthenticationPrincipal PrincipalDetails principalDetails){
+
+
 
         return "user";
         //웹브라우저 URL주소에 'localhost:8080/user'를 입력하면,
