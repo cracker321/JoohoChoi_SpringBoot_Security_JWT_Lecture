@@ -1,5 +1,10 @@
 package com.cos.security1.config.oauth;
 
+import com.cos.security1.config.auth.PrincipalDetails;
+import com.cos.security1.model.User;
+import com.cos.security1.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -23,6 +28,12 @@ import org.springframework.stereotype.Service;
 public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 
 
+
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Autowired
+    private UserRepository userRepository;
 
     //============================================================================================
 
@@ -157,7 +168,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 
 
     // 순서2)-1 'OAuth2UserRequest 객체'로부터 'ClientRegistration 객체'를 가져온다.
-    // - 'ClientRegistration 객체'는 구글(=OAuth2 공급자)과 사용자(e.g: yujogn4170@gamil.com) 간의 등록 정보를 나타냄.
+    // - 'ClientRegistration 객체'는 구글(=OAuth2 공급자)과 사용자(e.g: yujong4170@gamil.com) 간의 등록 정보를 나타냄.
 
 
     // 순서2)-2 'ClientRegistration 객체'를 사용하여, 구글(=OAuth2 공급자)에게 '엑세스 토큰 AccessToken'을 요청하여 발급받아온다.
@@ -182,18 +193,68 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 
     //--------------------------------------------------------------------------------------------
 
-    //[ '스프링부트 시큐리티 8강 - Authentication객체가 가질 수 있는 2가지 타입'강 00:00~ ]
+    //[ '스프링부트 시큐리티 9강 - 구글 로그인 및 자동 회원가입 진행 완료'강 10:40~ ]
 
 
+    //아래 '내장 메소드 loadUserByUsername'이 외부 클래스에서 호출되는 그 순간에,
+    //그 때 바로 그 외부 클래스에서 이 메소드와 연계하여 사용하는 '@AuthenticationPrincipal'이 만들어진다.
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException{
 
-        //강제 회원가입
-        OAuth2User oAuth2User = super.loadUser(userRequest);
+        //강제로 구글 로그인 회원가입 실습
+        OAuth2User oauth2User = super.loadUser(userRequest);
 
 
+        //
+        String provider = userRequest.getClientRegistration().getClientId();
 
-        return super.loadUser(userRequest);
+        //구글 자체
+        String providerId = oauth2User.getAttribute("sub");
+
+        //
+        //- 사실 OAuth2으로 로그인하면, username과 password를 이렇게 작성해 줄 필요 없음.
+        String username = provider +"_" + providerId;
+
+        //
+        //- 사실 OAuth2으로 로그인하면, username과 password를 이렇게 작성해 줄 필요 없음.
+        String password = bCryptPasswordEncoder.encode("겟인데어");
+
+        //사용자의 구글 email
+        String email = oauth2User.getAttribute("email");
+
+        //
+        String role = "ROLE_USER";
+
+
+        //위에서 임의로 만든 사용자 User 객체를 강제로 구글 회원가입 시켜보는 실습 진행하기 전에,
+        //그 사용자 User 객체가 혹시나 이미 DB에 있는지 여부를 확인하는 절차.
+        User userEntity = userRepository.findByUsername(username);
+
+        if(userEntity == null){
+
+            userEntity = User.builder()
+                    .username(username)
+                    .password(password)
+                    .email(email)
+                    .role(role)
+                    .provider(provider)
+                    .providerId(providerId)
+                    .build();
+
+            userRepository.save(userEntity);
+
+        } else{
+            System.out.println("당신을 구글 로그인을 이미 한 적이 있습니다. 당신은 이미 자동회원가입이 되어있는 상태입니다.");
+        }
+
+        return new PrincipalDetails(userEntity, oauth2User.getAttributes());
+        //*****중요*****
+        //'일반 로그인'할 때와 마찬가지로 'OAuth2 로그인'할 때도,
+        //'PrincipalDetails 객체가 반환되도록 원래 내장 메소드 loadUser를 수정'시킨 것이고,
+        //이 'PrincipalDetails 객체'가 '내장 Authentication 객체'의 내부에 저장된다!!
+        //이게 바로 핵심이다!!
+
+        // return super.loadUser(userRequest); //'구글 강제 회원가입 실습' 전의 최초 오버라이딩 되었을 때 원랠의 리턴값은 이거였음.
     }
 
 

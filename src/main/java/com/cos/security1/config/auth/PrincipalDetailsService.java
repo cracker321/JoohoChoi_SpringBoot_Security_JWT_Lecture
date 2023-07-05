@@ -170,6 +170,8 @@ public class PrincipalDetailsService implements UserDetailsService {
     //============================================================================================
 
 
+    //아래 '내장 메소드 loadUserByUsername'이 외부 클래스에서 호출되는 그 순간에,
+    //그 때 바로 그 외부 클래스에서 이 메소드와 연계하여 사용하는 '@AuthenticationPrincipal'이 만들어진다.
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
@@ -183,6 +185,11 @@ public class PrincipalDetailsService implements UserDetailsService {
         if(userEntity != null){
 
             return new PrincipalDetails(userEntity);
+            //*****중요*****
+            //여기서 '일반 로그인'할 때,
+            //'PrincipalDetails 객체가 반환되도록 원래 내장 메소드 loadUser를 수정'시킨 것이고,
+            //이 'PrincipalDetails 객체'가 '내장 Authentication 객체'의 내부에 저장된다!!
+            //이게 바로 핵심이다!!
         }
 
         //순서 2)-2 사용자 정보 확인: db에 해당 사용자가 없어서, 그 사용자(사용자 정보)를 db로부터 가져올 것이 없는 경우

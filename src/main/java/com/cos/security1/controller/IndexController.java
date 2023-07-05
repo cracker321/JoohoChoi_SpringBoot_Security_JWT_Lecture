@@ -189,7 +189,14 @@ public class IndexController {
 
     //[ '스프링부트 시큐리티 9강 - 구글 로그인 및 자동 회원가입 진행 완료'강 00:00~ ]
 
-    //사용자가 '일반 로그인'을 하든, 'OAuth2 로그인(소셜 로그인)'을 하든 상관 없이
+    //- 'PrincipalDetails'를 매개변수로 사용하여, 이제
+    //  사용자가 '일반 로그인'을 하든, 'OAuth2 로그인(소셜 로그인)'을 하든 상관 없이
+    //  어떤 로그인이든 URL주소 '/user'에 접근이 가능해졌다!
+    //- '@AutenticationPrincipal'
+    //  : 이 어노테이션으로 접근하면, '일반 로그인'을 해도 PrincipalDetails 객체 반환되고,
+    //    'OAuth2 로그인'을 해도 PrincipalDetails가 반환되어 어느 경우에도 자유롭게
+    //
+    //
     @GetMapping("/user")
     public @ResponseBody String user(@AuthenticationPrincipal PrincipalDetails principalDetails){
 

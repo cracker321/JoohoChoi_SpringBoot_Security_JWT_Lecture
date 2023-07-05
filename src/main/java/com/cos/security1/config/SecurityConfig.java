@@ -253,11 +253,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     //      - 생성된 BCryptPasswordEncoder 객체를 반환하고, 이후 컴포넌트 내(의 다른 외부 클래스)에서
     //        이 객체를 주입받아 사용할 수 있음.
 
-    @Bean
-    public BCryptPasswordEncoder encodePwd(){
-
-        return new BCryptPasswordEncoder();
-    }
+//    @Bean
+//    public BCryptPasswordEncoder encodePwd(){
+//
+//        return new BCryptPasswordEncoder();
+//    }
 
 
     //============================================================================================
