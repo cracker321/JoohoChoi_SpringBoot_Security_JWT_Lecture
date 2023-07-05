@@ -12,7 +12,9 @@ package com.cos.security1.config.auth;
 
 
 import com.cos.security1.model.User;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,11 +36,64 @@ import java.util.Map;
 
 
 @Data
-@RequiredArgsConstructor
+//현재 클래스에 'final이 붙은 필드' 또는 '@NonNull이 붙은 필드'가 전혀 존재하지 않는다면,
+//'@Data'는 자동으로 해당 클래스의 '기본 생성자'를 생성해줌.
+//(근데 이거 확실한건가..? 아닌 것 같은데..)
+
+
+
+//생성자는 클래스에서 뗄레야 뗄수 없는 관계이다.
+//모든 클래스는 생성자를 갖고 있으며, 기본 생성자는 만들지 않아도 생성이된다.
+//다만, 기본 생성자 이외의 생성자를 만들게 된다면 기본 생성자는 자동으로 만들어지지 않으므로,
+//기본생성자 또한 만들어줘야 한다는 점 잊지 말도록하자
+
+
+
+// 4. 생성자 특징
+//         1) 생성자 이름 == 클래스 이름.
+//         2) 메서드와 다르게 반환형이 없음.
+//         3) 클래스는 반드시 한 개 이상의 생성자를 가지고 있음.
+//         4) 생성자 오버로딩이 가능함(즉, 여러 개의 생성자가 존재 할 수 있음)
+//         5) 생성자가 보이지 않으면 기본 생성자가 숨어 있음.
+//         6) 기본생성자라 함은 매개변수가 없는 생성자를 말함.
+//         7) 기본생성자 외에 다른 생성자를 만들면, 숨어 있던 기본생성자는 사라짐.
+//         8) 기본 생성자 외에 다른 생성자를 만들면, 무조건 기본 생성자를 만들어 줄 것
+//         (만약 기본생성자를 만들지 않으면 상속에서 문제 발생)
+
+
+
+//Lombok을 사용했을 때, @Data를 붙이면 기본생성자로 @NoArgsConstructor를 생성해주는 줄 알았다.
+//그런데 누가 물어봐서 대답하려고 보니, 명확하게 모르는 것을 깨닫고 찾아보았다.
+//@Data를 붙이게 되면, 일반적으로는 @NoArgsConstructor를 만들어주는 것처럼 보인다.
+//하지만 엄밀히 말하면 @NoArgsConstructor가 아니라 @RequiredArgsConstructor가 생성된다.
+//즉, final접근자가 붙어있거나 @Nonnull 애노테이션을 붙인 경우에는 해당 필드를 가진 생성자가 만들어진다.
+//보통의 경우는 final이나 @Nonnull이 없는 경우라서 @NoArgsConstructor를 만들어 주는 것 같은 착시효과를 보일 뿐이다.
+
+
+//@RequiredArgsConstructor //- 이 @ReuqiredArgsConstructor는 오직 'final이 붙은 필드' 또는 '@NonNull이 붙은 필드'에
+                           //  대해서만 생성자를 대신 만들어줌.
+                           //  오직 'final이 붙은 필드' 또는 '@NonNull'이 붙은 필드에 대해서만 작용하고,
+                           //  'final 또는 @NonNull이 붙은 필드가 없는 클래스'일 경우, 클래스에 어떠한 아무 영향도 미치지 못한다!
 public class PrincipalDetails implements UserDetails, OAuth2User {
 
-    private final User user;
+    private User user; //'일반 로그인'할 때 사용하는 의존성주입 및 생성자(@RequiredArgsConstructor)
+    private Map<String, Object> attributes; //'OAuth2 로그인'할 때 사용하는 의존성주입 및 생성자(@AllArgsConstructor)
 
+
+
+    public PrincipalDetails(User user){
+        this.user = user;
+    }
+
+
+
+    public PrincipalDetails(User user, Map<String, Object> attributes){
+
+        this.user = user;
+        this.attributes = attributes;
+    }
+
+    //============================================================================================
 
     /*
 
@@ -72,20 +127,20 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 
     - 내장 Authentication 객체에는 특정한 필드만 저장할 수 있음.
       따라서, 원칙적으로는 내장 Authentification 객체는
-      (1)'소셜 로그인 OAuth2 인증 정보' 또는 (2)'일반 로그인 스프링 시큐리티 인증 정보'
+      (1)'일반 로그인 스프링 시큐리티 인증 정보' 또는 (2)'소셜 로그인 OAuth2 인증 정보'
       중 오직 '단 한 가지만 저장'할 수 있음.
-    - 1. '내장 인터페이스 UserDetails 타입의 필드'
+    - 1. '내장 인터페이스 UserDetails'
          : '일반 로그인'할 때 사용되는 스프링 시큐리티에서 제공하는 내장 인터페이스.
            '사용자 정보'와 '권한 정보'를 담고 있음
-    - 2. '내장 인터페이스 OAuth2User 타입의 필드'
-         : 'OAuth2 인증 로그인(=소셜 로그인)' 방식을 사용할 때 사용되는 내장 인터페이스로, '사용자 정보'를 담고 있음.
+    - 2. '내장 인터페이스 OAuth2User'
+         : 'OAuth2 인증 로그인(=소셜 로그인)' 방식을 사용할 때 사용되는 내장 인터페이스로, '사용자 '속성' 정보'를 담고 있음.
                  ㅣ
                  ㅣ
                  ㅣ 하위 개념으로 내려가는 것.
                  ㅣ
                  ㅣ
     < '내장 인터페이스 UserDetails'와 '내장 인터페이스 OAuth2User'에 '사용자의 세부 정보'를 전달해주기 위해,
-      DB 또는 OAuth 2.0 제공자(=구글)로부터 그 '사용자의 세부 정보'를 '조회해서 가져오는 역할'을 하는
+     각각 'DB'와 'OAuth 2.0 제공자(=구글)'로부터 그 '사용자의 세부 정보'를 '조회해서 가져오는 역할'을 하는
       '내장 인터페이스 서비스 UserDetailsService'와 '내장 인터페이스 서비스 DeafaultOAuth2User' >
 
     1-(1). '내장 인터페이스 UserDetails'
@@ -106,6 +161,8 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
            - 주요 내장 메소드:
              loadUserByUsername(String username) : 주어진 사용자 이름에 해당하는 사용자 정보를 'DB로부터' 조회하여
                                                    'UserDetails 객체를 반환'한다!
+
+
 
     2-(1). '내장 인터페이스 OAuth2User'
            - '사용자의 세부 정보를 담고 있는 클래스 PrincipalDetails'가 구현하고 있는 내장 인터페이스로,
@@ -132,21 +189,13 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
     < '사용자의 세부 정보'를 담고 있는 '내장 인터페이스 UserDetails'와 '내장 인터페이스 OAuth2User'를
       구현하기 위해 만든 '사용자 정의 클래스 PrincipalDetails' >
 
-    - '개발자가 필요로 하는 사용자 User의 상세 정보'를 담을 수 있도록 만든 클래스이며, 'User 객체'를 포함하여 사용자 정보를 저장함.
+    - '개발자가 필요로 하는 사용자 User의 상세 정보'를 담을 수 있도록 만든 클래스이며, 'User 객체'를 '포함'하여 사용자 정보를 저장함.
     - '내장 인터페이스 UserDetails' 또는 '내장 인터페이스 OAuth2SUer'를 '커스터마이징'하여 구현(implements)'하기 때문에,
       이 내장 인터페이스들 내부의 '사용자 정보와 권한을 제공하는 내장 메소드들'을 '오버라이딩'하여 '정의'해야 함(인터페이스이기 때문).
       또한, '커스터마이징한 클래스'이기 때문에, '사용자 User 정보'에 추가적인 필드들을 포함시켜도 됨.
     - 사용자 정보를 활용한 권한 검사, 추가 필드 활용, 특정 조건에 따른 동작 변경 등의 기능을 구현할 때 호라용됨.
     - '내장 객체 Authentication'은, 인증된 사용자를 식별하기 위해 'PrincipalDetails 객체'를 '스프링 시큐리티 세션에 저장'하고,
       이렇게 '세션에 저장된 Authentication 객체'는 후속 요청에서 사용자를 식별하고, 인증된 사용자의 정보에 접근하는 데 사용됨.
-                 ㅣ
-                 ㅣ
-                 ㅣ 하위 개념으로 내려가는 것.
-                 ㅣ
-                 ㅣ
-
-
-
 
      */
 
@@ -157,7 +206,7 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 
     @Override
     public Map<String, Object> getAttributes() {
-        return null;
+        return attributes; //이 attributes에 대해 확실히 알아보기.
     }
 
     //--------------------------------------------------------------------------------------------
@@ -169,6 +218,7 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
     public String getName() {
         return null;
     }
+
 
     //============================================================================================
 
